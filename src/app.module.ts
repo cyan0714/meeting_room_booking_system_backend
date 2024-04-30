@@ -8,13 +8,29 @@ import { Permission } from './user/entities/permission.entity';
 import { UserModule } from './user/user.module';
 import { RedisModule } from './redis/redis.module';
 import { ConfigService, ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { LoginGuard } from './login.guard';
+import { PermissionGuard } from './permission.guard';
 
 @Module({
   imports: [
+    JwtModule.registerAsync({
+      global: true,
+      useFactory(configService: ConfigService) {
+        return {
+          secret: configService.get('jwt_secret'),
+          signOptions: {
+            expiresIn: '30m', // 默认 30 分钟
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
     TypeOrmModule.forRootAsync({
       useFactory(configService: ConfigService) {
         return {
-          type: "mysql",
+          type: 'mysql',
           host: configService.get('mysql_server_host'),
           port: configService.get('mysql_server_port'),
           username: configService.get('mysql_server_username'),
@@ -22,17 +38,15 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
           database: configService.get('mysql_server_database'),
           synchronize: true,
           logging: true,
-          entities: [
-            User, Role, Permission
-          ],
+          entities: [User, Role, Permission],
           poolSize: 10,
           connectorPackage: 'mysql2',
           extra: {
-              authPlugin: 'sha256_password',
-          }
-        }
+            authPlugin: 'sha256_password',
+          },
+        };
       },
-      inject: [ConfigService]
+      inject: [ConfigService],
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -42,6 +56,16 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
     RedisModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: LoginGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    },
+  ],
 })
 export class AppModule {}
