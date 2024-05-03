@@ -204,7 +204,7 @@ export class UserService {
     const vo = {
       accessToken: '',
       refreshToken: '',
-    }
+    };
     vo.accessToken = this.jwtService.sign(
       {
         userId: user.id,
@@ -229,5 +229,15 @@ export class UserService {
     );
 
     return vo;
+  }
+
+  async findUserDetailById(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    return user;
   }
 }

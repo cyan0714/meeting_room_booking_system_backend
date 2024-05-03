@@ -15,6 +15,8 @@ import { Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
+import { UserInfo, RequireLogin } from 'src/custom.decorator';
+import { UserDetailVo } from './vo/user-info.vo';
 
 @Controller('user')
 export class UserController {
@@ -32,12 +34,13 @@ export class UserController {
 
   @Get('init-data')
   async initData() {
-    await this.userService.initData2();
+    await this.userService.initData();
     return 'done';
   }
 
   @Post('login')
   async userLogin(@Body() loginUser: LoginUserDto) {
+    console.log('loginUser: ', loginUser);
     const user = await this.userService.login(loginUser, false);
     return user;
   }
@@ -54,8 +57,8 @@ export class UserController {
       const data = this.jwtService.verify(refreshToken);
       const user = await this.userService.findUserById(data.userId, false);
 
-      const access_token = this.userService.getToken(user).accessToken
-      const refresh_token = this.userService.getToken(user).refreshToken
+      const access_token = this.userService.getToken(user).accessToken;
+      const refresh_token = this.userService.getToken(user).refreshToken;
 
       return {
         access_token,
@@ -72,8 +75,8 @@ export class UserController {
       const data = this.jwtService.verify(refreshToken);
       const user = await this.userService.findUserById(data.userId, true);
 
-      const access_token = this.userService.getToken(user).accessToken
-      const refresh_token = this.userService.getToken(user).refreshToken
+      const access_token = this.userService.getToken(user).accessToken;
+      const refresh_token = this.userService.getToken(user).refreshToken;
 
       return {
         access_token,
@@ -82,5 +85,23 @@ export class UserController {
     } catch (e) {
       throw new UnauthorizedException('token 已失效，请重新登录');
     }
+  }
+
+  @Get('info')
+  @RequireLogin()
+  async info(@UserInfo('userId') userId: number) {
+    const user = await this.userService.findUserDetailById(userId);
+
+    const vo = new UserDetailVo();
+    vo.id = user.id;
+    vo.email = user.email;
+    vo.username = user.username;
+    vo.headPic = user.headPic;
+    vo.phoneNumber = user.phoneNumber;
+    vo.nickName = user.nickName;
+    vo.createTime = user.createTime;
+    vo.isFrozen = user.isFrozen;
+    
+    return vo;
   }
 }
