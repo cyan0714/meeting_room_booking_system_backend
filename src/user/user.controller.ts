@@ -17,10 +17,18 @@ import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserInfo, RequireLogin } from 'src/custom.decorator';
 import { UserDetailVo } from './vo/user-info.vo';
-import { ApiTags, ApiQuery, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiQuery,
+  ApiBody,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { HttpStatus } from '@nestjs/common';
 import { LoginUserVo } from './vo/login-user.vo';
 import { RefreshTokenVo } from './vo/refresh-token.vo';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('用户管理模块')
 @Controller('user')
@@ -129,7 +137,6 @@ export class UserController {
     }
   }
 
-
   @Get('admin/refresh')
   @ApiQuery({
     name: 'refreshToken',
@@ -186,5 +193,23 @@ export class UserController {
     vo.isFrozen = user.isFrozen;
 
     return vo;
+  }
+
+  @Post(['update_password', 'admin/update_password'])
+  @RequireLogin()
+  async updatePassword(
+    @UserInfo('userId') userId: number,
+    @Body() passwordDto: UpdateUserPasswordDto,
+  ) {
+    return await this.userService.updatePassword(userId, passwordDto);
+  }
+
+  @Post(['update', 'admin/update'])
+  @RequireLogin()
+  async update(
+    @UserInfo('userId') userId: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.userService.update(userId, updateUserDto);
   }
 }
