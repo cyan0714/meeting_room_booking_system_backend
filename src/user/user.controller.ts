@@ -32,6 +32,8 @@ import { RefreshTokenVo } from './vo/refresh-token.vo';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { generateParseIntPipe } from 'src/utils';
+import { RedisService } from 'src/redis/redis.service';
+import { EmailService } from 'src/email/email.service';
 
 @ApiTags('用户管理模块')
 @Controller('user')
@@ -42,6 +44,26 @@ export class UserController {
 
   @Inject(ConfigService)
   private configService: ConfigService;
+
+  @Inject(RedisService)
+  private redisService: RedisService;
+
+  @Inject(EmailService)
+  private emailService: EmailService;
+
+  @Get('register-captcha')
+  async captcha(@Query('address') address: string) {
+    const code = Math.random().toString().slice(2, 8);
+
+    await this.redisService.set(`captcha_${address}`, code, 5 * 60);
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '注册验证码',
+      html: `<p>你的注册验证码是 ${code}</p>`,
+    });
+    return '发送成功';
+  }
 
   @ApiBody({ type: RegisterUserDto })
   @ApiResponse({
