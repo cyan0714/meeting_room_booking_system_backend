@@ -32,7 +32,12 @@ export class RegisterUserDto {
     {
       message: '不是合法的邮箱格式',
     },
-    )
+  )
   @ApiProperty()
   email: string;
+
+  @IsNotEmpty({
+    message: '验证码不能为空',
+  })
+  captcha: string;
 }

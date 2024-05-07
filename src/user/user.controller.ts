@@ -11,7 +11,7 @@ import {
   DefaultValuePipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { RegisterUserDto } from './dto/user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
