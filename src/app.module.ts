@@ -13,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { LoginGuard } from './login.guard';
 import { PermissionGuard } from './permission.guard';
 import { EmailModule } from './email/email.module';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -51,7 +52,7 @@ import { EmailModule } from './email/email.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: 'src/.env',
+      envFilePath: path.join(__dirname, '.env')
     }),
     UserModule,
     RedisModule,
