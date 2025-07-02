@@ -52,7 +52,7 @@ import * as path from 'path';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: path.join(__dirname, '.env')
+      envFilePath: path.join(__dirname, '.env'),
     }),
     UserModule,
     RedisModule,

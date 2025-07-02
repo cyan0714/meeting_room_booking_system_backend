@@ -1,4 +1,10 @@
-import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  Logger,
+  NestInterceptor,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { Request } from 'express';
 import { Observable, tap } from 'rxjs';
@@ -19,14 +25,14 @@ export class InvokeRecordInterceptor implements NestInterceptor {
     const { ip, method, path } = request;
 
     this.logger.debug(
-      `${method} ${path} ${ip} ${userAgent}: ${
-        context.getClass().name
-      } ${
+      `${method} ${path} ${ip} ${userAgent}: ${context.getClass().name} ${
         context.getHandler().name
       } invoked...`,
     );
-  
-    this.logger.debug(`user: ${request.user?.userId}, ${request.user?.username}`);
+
+    this.logger.debug(
+      `user: ${request.user?.userId}, ${request.user?.username}`,
+    );
 
     const now = Date.now();
 
