@@ -1,5 +1,21 @@
 version: '3.8'
 services:
+  fe-app-admin:
+    image: fe-container:admin
+    ports:
+      - 81:81
+    depends_on:
+      - nest-app
+    networks:
+      - common-network
+  fe-app-user:
+    image: fe-container:user
+    ports:
+      - 80:80
+    depends_on:
+      - nest-app
+    networks:
+      - common-network
   nest-app:
     build:
       context: ./
@@ -14,7 +30,7 @@ services:
   mysql-container:
     image: mysql
     volumes:
-      - /Users/shiyanchen/Applications/mysql-docker-mounted-data:/var/lib/mysql
+      - /Users/shiyanchen/Applications/remote-mysql-docker-mounted-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: meeting_room_booking_system
       MYSQL_ROOT_PASSWORD: 123456
